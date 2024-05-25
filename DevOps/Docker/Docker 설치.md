@@ -83,6 +83,7 @@ systemctl status docker
 systemctl status : 서비스의 상태 확인
 
 도커가 작동되고 있는지 확인한다.
+
 ![도커작동확인](/images/도커작동확인.png)
 
 ### 4. 도커 명령어를 사용자 모드에서 사용할 수 있게 설정
