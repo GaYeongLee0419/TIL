@@ -1,0 +1,250 @@
+# ELB
+- 고가용성 및 스케일링성
+    - 확장성은 응용 프로그램 또는 시스템이 적응하여 더 큰 작업 부하를 처리할 수 있는 능력을 의미합니다.
+    - 두 가지 유형의 확장성이 있습니다:
+        - 수직적 확장성(Vertical Scalability)
+            - 수직 확장성은 인스턴스의 크기를 증가시키는 것을 의미합니다.
+            - 예를 들어, 애플리케이션이 t2.micro에서 실행된다고 가정해보겠습니다. 해당 애플리케이션을 수직적으로 확장한다는 것은 t2.large에서 실행하는 것을 의미합니다.
+            - 수직 확장성은 분산 시스템이 아닌 일반적인 시스템(예: 데이터베이스)에서 매우 흔합니다.
+            - RDS, ElastiCache는 수직 확장성을 가질 수 있는 서비스입니다.
+            - 일반적으로 수직 확장에는 제한이 있을 수 있습니다(하드웨어 제한).
+        - 수평적 확장성 (= 탄력성, )
+            - 수평 확장성은 애플리케이션의 인스턴스 또는 시스템의 수를 증가시키는 것을 의미합니다.
+            - 수평 확장성은 분산 시스템을 의미합니다.
+            - 웹 애플리케이션이나 현대적인 애플리케이션에서 매우 흔합니다.
+            - 아마존 EC2와 같은 클라우드 제공 제품들 덕분에 수평 확장이 쉽습니다.
+        - 확장성은 고가용성과 연관되어 있지만 다른 개념입니다.
+    - 고가용성
+        - 고가용성은 일반적으로 수평 확장성과 함께 사용됩니다.
+        - 고가용성은 최소한 2개의 데이터 센터(가용 영역)에서 애플리케이션 또는 시스템을 실행하는 것을 의미합니다.
+        - 고가용성의 목표는 데이터 센터 손실에도 시스템이 계속 가동될 수 있도록 하는 것입니다.
+        - 고가용성은 수동적일 수 있습니다(예: RDS Multi AZ).
+        - 고가용성은 활성적일 수 있습니다(수평 확장성).
+- load balancing
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/37a97197-e26f-4db0-bcff-1c915354a17b)
+    - 로드 밸런서는 트래픽을 다수의 서버(예: EC2 인스턴스)로 전달하는 서버입니다.
+    - 사용 이유
+        - 다수의 다운스트림 인스턴스 간에 부하를 분산시킵니다.
+        - 애플리케이션에 대한 단일 접근 지점(DNS)을 노출합니다.
+        - 다운스트림 인스턴스의 장애를 원활하게 처리합니다.
+        - 정기적인 인스턴스 상태 확인을 수행합니다.
+        - 웹 사이트의 SSL 종료(HTTPS)를 제공합니다.
+        - 쿠키를 사용하여 세션 고정을 적용합니다.
+        - 다중 가용 영역에서의 고가용성을 제공합니다.
+        - 공용 트래픽과 개인 트래픽을 분리합니다.
+    - Elastic Load Balancer 사용 이유
+        - Elastic Load Balancer는 관리형 로드 밸런서입니다.
+            - AWS는 로드 밸런서가 작동하는 것을 보장합니다.
+            - AWS는 업그레이드, 유지 보수, 고가용성을 관리합니다.
+            - AWS는 몇 가지 구성 설정만 제공합니다.
+        - 직접 로드 밸런서를 설정하는 것이 비용이 적게 들지만 더 많은 노력이 필요합니다.
+        - 많은 AWS 서비스와 통합되어 있습니다.
+            - EC2, EC2 Auto Scaling 그룹, Amazon ECS
+            - AWS Certificate Manager (ACM), CloudWatch
+            - Route 53, AWS WAF, AWS Global Accelerator
+    - Health Checks(상태 확인)
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/16220fbd-90a4-4a7d-87a3-35688315d8aa)
+        - 상태 확인은 로드 밸런서가 전달하는 인스턴스가 요청에 응답할 수 있는지 여부를 확인할 수 있게 합니다.
+        - 상태 확인은 특정 포트와 경로(/health는 일반적으로 사용됨)에서 수행됩니다.
+        - 응답이 200(OK)이 아닌 경우 인스턴스는 건강하지 않은 것으로 간주됩니다.
+    - Types of load balancer on AWS
+        - AWS는 4가지 유형의 관리형 로드 밸런서를 제공합니다.
+            - Classic Load Balancer (v1 - 이전 세대) – 2009 – CLB
+                - HTTP, HTTPS, TCP, SSL (보안 TCP)
+            - Application Load Balancer (v2 - 새로운 세대) – 2016 – ALB
+                - HTTP, HTTPS, WebSocket
+            - Network Load Balancer (v2 - 새로운 세대) – 2017 – NLB
+                - TCP, TLS (보안 TCP), UDP
+            - Gateway Load Balancer – 2020 – GWLB
+                - 레이어 3 (네트워크 레이어)에서 작동하는 IP 프로토콜을 사용합니다.
+        - 전반적으로 더 많은 기능을 제공하는 새로운 세대의 로드 밸런서를 사용하는 것이 권장됩니다.
+        - 일부 로드 밸런서는 내부(비공개) 또는 외부(공개) ELB로 설정할 수 있습니다.
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/0f81ecd0-2730-45dc-ad9c-80254657ea14)
+- Application Load Balancer (v2)
+    - <img width="1038" alt="image" src="https://github.com/mjs1995/muse-data-engineer/assets/47103479/2bbef7a6-6bb3-41d0-b712-786f2a8aca55">
+    - Application Load Balancer는 Layer 7 (HTTP)입니다.
+    - 여러 대의 HTTP 애플리케이션을 기계(타겟 그룹)에 대해 로드 밸런싱합니다.
+    - 동일한 기계에서 여러 애플리케이션에 대해 로드 밸런싱합니다. (예: 컨테이너)
+    - HTTP/2 및 WebSocket을 지원합니다.
+    - 리디렉션을 지원합니다. (예: HTTP에서 HTTPS로의 리디렉션)
+    - 다른 대상 그룹에 대한 라우팅 테이블
+        - URL의 경로에 따른 라우팅 (example.com/users 및 example.com/posts)
+        - URL의 호스트 이름에 따른 라우팅 (one.example.com 및 other.example.com)
+        - 쿼리 문자열, 헤더에 따른 라우팅 (example.com/users?id=123&order=false)
+    - ALB는 마이크로서비스 및 컨테이너 기반 애플리케이션에 적합합니다 (예: Docker 및 Amazon ECS).
+    - ECS에서 동적 포트로 리디렉션하기 위한 포트 매핑 기능이 있습니다.
+    - 반면, 여러 개의 클래식 로드 밸런서가 각각의 애플리케이션에 필요합니다.
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/baada3e2-2662-40fd-b314-b21c62611013)
+    - Target Groups
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/0d830a4b-f6c8-4ddd-bf3c-0048309545c7)
+        - EC2 인스턴스 (Auto Scaling 그룹에서 관리 가능) - HTTP
+        - ECS 작업 (ECS 자체에서 관리) - HTTP
+        - 람다 함수 - HTTP 요청이 JSON 이벤트로 변환됩니다.
+        - IP 주소 - 사설 IP여야 합니다.
+        - ALB는 여러 대상 그룹으로 라우팅할 수 있습니다.
+        - 상태 확인은 대상 그룹 수준에서 수행됩니다.
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/9adfa9b9-7f8a-4f3f-80cf-d01ed86717cf)
+        - 고정된 호스트 이름 (XXX.region.elb.amazonaws.com)
+        - 애플리케이션 서버는 클라이언트의 IP를 직접 볼 수 없습니다.
+            - 클라이언트의 실제 IP는 X-Forwarded-For 헤더에 삽입됩니다.
+            - 또한 포트 (X-Forwarded-Port)와 프로토콜 (X-Forwarded-Proto)을 얻을 수 있습니다.
+- Network Load Balancer (v2)
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/1769d0dc-9516-41bd-80dd-29fda362c5ce)
+    - 네트워크 로드 밸런서 (Layer 4)는 다음을 수행할 수 있습니다
+        - TCP 및 UDP 트래픽을 인스턴스로 전달합니다.
+        - 초당 수백만 개의 요청을 처리할 수 있습니다.
+        - 지연 시간이 적어서 약 100ms입니다 (ALB의 400ms 대비).
+    - NLB는 AZ 당 하나의 정적 IP를 가지며, 탄력적 IP를 할당하는 기능을 지원합니다 (특정 IP를 화이트리스트에 추가하는 데 도움이 됩니다).
+    - NLB는 고성능, TCP 또는 UDP 트래픽을 처리하기 위해 사용됩니다.
+    - Target Groups
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/50ac45cf-defa-431a-89b5-aab3f23a38f7)
+        - EC2 인스턴스
+        - IP 주소 - 사설 IP여야 합니다.
+        - Application Load Balancer
+        - Health Check는 TCP, HTTP 및 HTTPS 프로토콜을 지원합니다.
+- Gateway Load Balancer
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/075df23d-c584-442d-b83a-a4167773eab6)
+    - AWS에서 3rd party 네트워크 가상 애플라이언스를 배포, 확장 및 관리합니다.
+    - 예시: 방화벽, 침입 탐지 및 방지 시스템, 딥 패킷 검사 시스템, 페이로드 조작 등
+    - 네트워크 레이어(Layer 3)에서 작동하여 IP 패킷을 처리합니다.
+    - 다음과 같은 기능을 결합합니다.
+        - 투명 네트워크 게이트웨이 - 모든 트래픽의 단일 진입/이탈 지점
+        - 로드 밸런서 - 트래픽을 가상 애플라이언스에 분산합니다.
+    - 포트 6081에서 GENEVE 프로토콜을 사용합니다.
+    - Target Groups
+        - ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/65368ff7-195f-4e71-b198-614fe70d1e64)
+        - EC2 인스턴스
+        - IP 주소는 사설 IP여야 합니다.
+- 스티키 세션(Sticky Sessions (Session Affinity))
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/a781895a-b921-47d0-b74d-ea4ec5386ffa)
+    - Classic Load Balancer, Application Load Balancer, 및 Network Load Balancer에는 항상 동일한 클라이언트가 로드 밸런서 뒤의 동일한 인스턴스로 리디렉션되도록 유지되는 스티키 세션을 구현할 수 있습니다.
+    - CLB 및 ALB의 경우, 스티키 세션에 사용되는 "쿠키"에는 제어 가능한 만료 날짜가 있습니다.
+    - 사용 사례: 사용자가 세션 데이터를 잃지 않도록 보장합니다.
+    - 스티키 세션을 사용하면 백엔드 EC2 인스턴스에 대한 부하의 불균형이 발생할 수 있습니다.
+    - <img width="846" alt="image" src="https://github.com/mjs1995/muse-data-engineer/assets/47103479/3a0f5e62-6a5e-49f6-b561-b7b29ce93cdf">
+    - Cookie Names
+        - 애플리케이션 기반 쿠키
+            - 사용자 정의 쿠키
+                - 대상(target)에서 생성
+                - 애플리케이션에서 필요한 사용자 정의 속성을 포함할 수 있음
+                - 각 대상 그룹마다 개별적으로 쿠키 이름을 지정해야 함
+                - AWSALB, AWSALBAPP 또는 AWSALBTG는 사용하지 말아야 함 (ELB에서 예약됨)
+            - 애플리케이션 쿠키
+                - 로드 밸런서에서 생성
+                - 쿠키 이름은 AWSALBAPP임
+            - 기간 기반 쿠키
+                - 로드 밸런서에서 생성된 쿠키
+                - ALB의 경우 쿠키 이름은 AWSALB, CLB의 경우 쿠키 이름은 AWSELB
+    - 크로스존 로드 밸런싱
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/49c0873b-6ca9-4803-9652-1dadf27b4caf)
+        - Application Load Balancer
+            - 기본적으로 활성화되어 있습니다 (Target Group 수준에서 비활성화 가능)
+            - AZ 간 데이터에 대해서는 추가 비용이 청구되지 않습니다.
+        - Network Load Balancer 및 Gateway Load Balancer
+            - 기본적으로 비활성화되어 있습니다.
+            - 활성화된 경우 AZ 간 데이터에 대해 요금이 청구됩니다.
+        - Classic Load Balancer
+            - 기본적으로 비활성화되어 있습니다.
+            - 활성화된 경우 AZ 간 데이터에 대해서는 추가 비용이 청구되지 않습니다.
+- SSL/TLS - Basics
+    - SSL 인증서는 클라이언트와 로드 밸런서 간의 트래픽을 전송 중에 암호화하는 데 사용됩니다 (in-flight 암호화).
+    - SSL은 Secure Sockets Layer의 약어로, 연결을 암호화하는 데 사용됩니다.
+    - TLS는 Transport Layer Security의 약어로, 보다 최신 버전입니다.
+    - 요즘은 주로 TLS 인증서가 사용되지만, 사람들은 여전히 SSL로 언급합니다.
+    - 공용 SSL 인증서는 인증 기관 (CA)에 의해 발급됩니다.
+    - Comodo, Symantec, GoDaddy, GlobalSign, Digicert, Letsencrypt 등이 있습니다.
+    - SSL 인증서는 만료일이 있으며 (사용자가 설정함), 갱신해야 합니다.
+    - SSL Certificates
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/1e4e53dc-cb47-4d30-a0df-721f3552aef2)
+        - 로드 밸런서는 X.509 인증서 (SSL/TLS 서버 인증서)를 사용합니다.
+        - ACM (AWS Certificate Manager)을 사용하여 인증서를 관리할 수 있습니다.
+        - 또는 직접 인증서를 업로드할 수도 있습니다.
+        - HTTPS 리스너
+            - 기본 인증서를 지정해야 합니다.
+            - 여러 도메인을 지원하기 위해 선택적으로 인증서 목록을 추가할 수 있습니다.
+            - 클라이언트는 SNI (Server Name Indication)을 사용하여 도달하려는 호스트 이름을 지정할 수 있습니다.
+            - SSL/TLS의 이전 버전(레거시 클라이언트)를 지원하기 위해 보안 정책을 지정할 수 있습니다.
+        - 클래식 로드 밸런서 (v1)
+            - 하나의 SSL 인증서만 지원합니다.
+            - 다중 호스트명 및 다중 SSL 인증서를 사용하려면 여러 개의 CLB를 사용해야 합니다.
+        - 애플리케이션 로드 밸런서 (v2)
+            - 다중 리스너와 다중 SSL 인증서를 지원합니다.
+            - Server Name Indication (SNI)을 사용하여 작동합니다.
+        - 네트워크 로드 밸런서 (v2)
+            - 다중 리스너와 다중 SSL 인증서를 지원합니다.
+            - Server Name Indication (SNI)을 사용하여 작동합니다.
+    - Server Name Indication (SNI)
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/0083b398-3703-4126-b406-adb057bc98ff)
+        - SNI는 하나의 웹 서버에 여러 개의 SSL 인증서를 로드하는 문제를 해결합니다 (여러 웹 사이트 제공).
+        - SNI는 "최신" 프로토콜로, 클라이언트가 초기 SSL 핸드셰이크에서 대상 서버의 호스트 이름을 지정해야 합니다.
+        - 서버는 그런 다음 올바른 인증서를 찾거나 기본 인증서를 반환합니다.
+        - 참고
+            - SNI는 ALB 및 NLB (최신 세대) 및 CloudFront에서만 작동합니다.
+            - CLB (이전 세대)에서는 작동하지 않습니다.
+- 연결 드레이닝
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/09e3a29c-67ad-43bb-98c9-e9b542d423ab)
+    - 이름
+        - Connection Draining (CLB용, 연결 드레이닝)
+        - Deregistration Delay (ALB 및 NLB용, 등록 취소 지연)
+    - 인스턴스가 해제 등록되거나 비정상적인 상태일 때 "수행 중인 요청"을 완료하는 데 걸리는 시간
+    - 해제 등록 중인 EC2 인스턴스로 새 요청을 보내지 않도록 함
+    - 1에서 3600초까지 설정 가능 (기본값: 300초)
+    - 비활성화할 수도 있음 (값을 0으로 설정)
+    - 요청이 짧은 경우 낮은 값을 설정합니다.
+- Auto Scaling Group(ASG)
+  ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/dcf0ccd5-b509-4807-90de-5a8b81cfec84)
+    - 실제로 웹사이트와 애플리케이션의 부하는 변할 수 있습니다.
+    - 클라우드에서는 서버를 매우 빠르게 생성하고 폐기할 수 있습니다.
+    - Auto Scaling Group (ASG)의 목표는 다음과 같습니다
+        - 부하가 증가하면 EC2 인스턴스를 추가하여 스케일 아웃합니다.
+        - 부하가 감소하면 EC2 인스턴스를 제거하여 스케일 인합니다.
+        - 최소 및 최대 EC2 인스턴스 수를 유지합니다.
+        - 새 인스턴스를 로드 밸런서에 자동으로 등록합니다.
+        - 이전 인스턴스가 종료된 경우 (예: 비정상 상태인 경우) 이전 인스턴스를 다시 생성합니다.
+    - ASG는 무료입니다 (기반이 되는 EC2 인스턴스만 비용이 발생합니다).
+    - Auto Scaling Group in AWS With Load Balancer
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/b1bcf93d-181f-448e-a006-7f2642cad49f)
+    - Auto Scaling Group Attributes
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/46842ea9-079c-47ea-afd7-7de3c146ef22)
+        - 런치 템플릿 (이전의 "런치 구성"은 폐지되었습니다)
+            - AMI + 인스턴스 유형
+            - EC2 사용자 데이터
+            - EBS 볼륨
+            - 보안 그룹
+            - SSH 키 페어
+            - EC2 인스턴스용 IAM 역할
+            - 네트워크 + 서브넷 정보
+            - 로드 밸런서 정보
+        - 최소 크기 / 최대 크기 / 초기 용량
+        - 스케일링 정책
+    - CloudWatch Alarms & Scaling
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/50a24d4d-53f6-4464-9e0c-47b36ea753c6)
+        - CloudWatch 알람을 기반으로 ASG의 스케일링이 가능합니다.
+        - 알람은 평균 CPU나 사용자 정의 지표와 같은 메트릭을 모니터링합니다.
+        - 평균 CPU와 같은 메트릭은 ASG 인스턴스 전체에 대해 계산됩니다.
+        - 알람에 따라
+            - 스케일 아웃 정책을 생성할 수 있습니다 (인스턴스 수 증가)
+            - 스케일 인 정책을 생성할 수 있습니다 (인스턴스 수 감소)
+    - Dynamic Scaling Policies(동적 스케일링 정책)
+        - Target Tracking 스케일링
+            - 가장 간단하고 설정하기 쉽습니다.
+            - 예시: 평균 ASG CPU를 약 40%로 유지하고 싶을 때
+        - Simple / Step 스케일링
+            - CloudWatch 알람이 트리거될 때 (예: CPU > 70%), 2개의 인스턴스 추가
+            - CloudWatch 알람이 트리거될 때 (예: CPU < 30%), 1개의 인스턴스 제거
+        - 예약된 동작
+            - 예상된 사용 패턴에 기반하여 스케일링을 수행합니다.
+            - 예시: 매주 금요일 오후 5시에 최소 용량을 10으로 증가시킵니다.
+    - Predictive Scaling
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/a192b6a0-16ff-47b5-891d-d9bb13110fff)
+        - 예측 스케일링: 지속적으로 부하를 예측하고 스케일링을 미리 예약합니다.
+    - 스케일링 지표
+      ![image](https://github.com/mjs1995/muse-data-engineer/assets/47103479/3ec293fc-7939-4c1c-bbe2-18c6bdd7bed7)
+        - CPUUtilization: 인스턴스의 평균 CPU 사용률
+        - RequestCountPerTarget: EC2 인스턴스당 요청 수가 안정적인지 확인
+        - Average Network In / Out (네트워크 바운드 애플리케이션인 경우)
+        - 사용자 정의 메트릭 (CloudWatch를 통해 전송하는 경우)
+    - 휴지 기간(확장 후 대기 시간)
+        - 확장 활동이 발생한 후에는 대기 시간(cooldown) 기간에 들어갑니다 (기본값은 300초입니다).
+        - 대기 시간 동안 ASG는 추가 인스턴스를 시작하거나 종료하지 않습니다 (메트릭이 안정화되기 위해).
+        - 조언: 대기 시간을 줄이고 더 빠르게 요청을 처리하여 대기 시간을 감소시키기 위해 구성 시간을 줄이기 위해 준비된 AMI를 사용하십시오.
