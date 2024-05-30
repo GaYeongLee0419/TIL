@@ -4,7 +4,7 @@
 
 ### Docker 구조
 
-![출처 : 한 권으로 배우는 도커 & 쿠버네티스](https://prod-files-secure.s3.us-west-2.amazonaws.com/b291ae99-0797-44af-953b-84d405d16c0f/039366e1-6892-4e6d-b8eb-a0cec35b3a05/2a34060c-2193-4a15-b0ee-e6a78af95161.png)
+![도커구조](/images/도커구조.png)
 
 출처 : 한 권으로 배우는 도커 & 쿠버네티스
 
